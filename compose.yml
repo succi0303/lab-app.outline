@@ -1,0 +1,45 @@
+services:
+
+  outline:
+    image: docker.getoutline.com/outlinewiki/outline:latest
+    env_file: stack.env
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./storage-data:/var/lib/outline/data
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      PGSSLMODE: disable
+
+  redis:
+    image: redis
+    env_file: stack.env
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 30s
+      retries: 3
+
+  postgres:
+    image: postgres:16
+    env_file: stack.env
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./database-data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-d", "outline", "-U", "user" ]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    environment:
+      POSTGRES_USER: 'user'
+      POSTGRES_PASSWORD: 'pass'
+      POSTGRES_DB: 'outline'
