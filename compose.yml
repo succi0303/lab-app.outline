@@ -43,3 +43,6 @@ services:
       POSTGRES_USER: 'user'
       POSTGRES_PASSWORD: 'pass'
       POSTGRES_DB: 'outline'
+volumes:
+  storage-data:
+  database-data:
